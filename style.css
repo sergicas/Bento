@@ -57,3 +57,21 @@ main{padding:12px;display:grid;gap:12px}
   opacity: 1;
   transform: scale(1.1);
 }
+
+/* Input Labels Styling */
+.add {
+  align-items: end; /* Align the button to the bottom of the input fields */
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  padding-left: 4px;
+}

@@ -22,11 +22,26 @@
   </main>
 
   <footer class="add">
-    <input id="docName" placeholder="Nom" />
-    <input id="docCategory" placeholder="Categoria" />
-    <input id="docFolder" placeholder="Carpeta" />
-    <input id="docSubfolder" placeholder="Subcarpeta" />
-    <input id="docTags" placeholder="Etiquetes (coma separades)" />
+    <div class="input-group">
+      <label for="docName">Nom</label>
+      <input id="docName" />
+    </div>
+    <div class="input-group">
+      <label for="docCategory">Categoria</label>
+      <input id="docCategory" />
+    </div>
+    <div class="input-group">
+      <label for="docFolder">Carpeta</label>
+      <input id="docFolder" />
+    </div>
+    <div class="input-group">
+      <label for="docSubfolder">Subcarpeta</label>
+      <input id="docSubfolder" />
+    </div>
+    <div class="input-group">
+      <label for="docTags">Etiquetes (coma separades)</label>
+      <input id="docTags" />
+    </div>
     <button id="addBtn">Afegir</button>
   </footer>
   <div id="toast" class="toast">Document afegit correctament! ✅</div>
