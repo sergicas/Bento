@@ -32,13 +32,13 @@ async function fetchDocuments() {
     .from('documents')
     .select('*')
     .order('id', { ascending: false });
-    
+
   if (error) {
     console.error('Error carregant documents de Supabase:', error);
     showToast('Error carregant documents ❌');
     return;
   }
-  
+
   docs = data || [];
   render();
 }
@@ -49,18 +49,45 @@ async function addDocument() {
   const folder = document.getElementById('docFolder').value.trim() || 'General';
   const sub = document.getElementById('docSubfolder').value.trim();
   const tagsStr = document.getElementById('docTags').value;
-  
+  const fileInput = document.getElementById('docFile');
+  const file = fileInput ? fileInput.files[0] : null;
+
   if (!name) {
     alert('Posa un nom al document');
     return;
   }
-  
+
+  let file_url = null;
+
+  if (file) {
+    showToast('Pujant fitxer al núvol... ⏳');
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('bento-files')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      console.error('Error pujant el fitxer:', uploadError);
+      showToast('Error pujant el fitxer ❌');
+      return;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('bento-files')
+      .getPublicUrl(fileName);
+
+    file_url = publicUrlData.publicUrl;
+  }
+
   const newDoc = {
     name,
     cat,
     folder,
     sub,
-    tags: tagsStr
+    tags: tagsStr,
+    file_url: file_url
   };
 
   const { data, error } = await supabase
@@ -79,7 +106,7 @@ async function addDocument() {
     docs.unshift(data[0]); // Posa'l al principi
   }
 
-  ['docName', 'docCategory', 'docFolder', 'docSubfolder', 'docTags']
+  ['docName', 'docCategory', 'docFolder', 'docSubfolder', 'docTags', 'docFile']
     .forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
@@ -134,7 +161,7 @@ function render() {
 
   if (q) {
     filtered = filtered.filter(d => {
-      const tagArray = (d.tags || '').split(',').map(t=>t.trim());
+      const tagArray = (d.tags || '').split(',').map(t => t.trim());
       return d.name.toLowerCase().includes(q) ||
         (d.cat || '').toLowerCase().includes(q) ||
         (d.folder || '').toLowerCase().includes(q) ||
@@ -146,7 +173,7 @@ function render() {
   listEl.innerHTML =
     filtered
       .map(d => {
-        const tagArray = (d.tags || '').split(',').map(t=>t.trim()).filter(Boolean);
+        const tagArray = (d.tags || '').split(',').map(t => t.trim()).filter(Boolean);
         return `
         <div class="item">
           <div class="item-content">
@@ -157,6 +184,7 @@ function render() {
             <div>
               <small>Etiquetes: ${escapeHtml(tagArray.join(', ') || '—')}</small>
             </div>
+            ${d.file_url ? `<div style="margin-top: 6px;"><a href="${escapeHtml(d.file_url)}" target="_blank" class="attachment-btn" title="Veure arxiu adjunt">Veure arxiu 📎</a></div>` : ''}
           </div>
           <button class="delete-btn" onclick="deleteDocument(${d.id})" title="Eliminar document">🗑️</button>
         </div>
