@@ -1,5 +1,5 @@
 // PWA cache amb versió nova per forçar actualització
-const CACHE = 'docs-cache-v2';
+const CACHE = 'docs-cache-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -10,10 +10,8 @@ const ASSETS = [
 
 // Instal·lació: pre-cache i activació immediata
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(ASSETS))
-  );
-  self.skipWaiting(); // activa el SW nou sense esperar
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
+  self.skipWaiting();
 });
 
 // Activació: neteja versions antigues i pren control
@@ -25,7 +23,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: serveix de caché i, si no hi és, baixa de la xarxa
+// Fetch: primer caché, si no, xarxa
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((res) => res || fetch(event.request))
