@@ -1,5 +1,5 @@
 // PWA cache amb versió nova per forçar actualització
-const CACHE = 'docs-cache-v4';
+const CACHE = 'docs-cache-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -23,9 +23,19 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: primer caché, si no, xarxa
+// Fetch: Network First, falling back to cache (Així sempre tenim la darrera versió quan hi ha internet)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((res) => res || fetch(event.request))
+    fetch(event.request)
+      .then((networkResponse) => {
+        // Actualitzem el cache amb l'última versió descarregada
+        const responseClone = networkResponse.clone();
+        caches.open(CACHE).then((cache) => cache.put(event.request, responseClone));
+        return networkResponse;
+      })
+      .catch(() => {
+        // En cas d'estar sense connexió, busquem al cache
+        return caches.match(event.request);
+      })
   );
 });
