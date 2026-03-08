@@ -1,0 +1,13 @@
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#f6f7fb;color:#222}
+.topbar{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;padding:12px;background:#3D7AFD;color:#fff}
+.topbar h1{margin:0;font-size:20px}
+.search{flex:1;border:none;border-radius:10px;padding:10px 12px;font-size:16px}
+main{padding:12px;display:grid;gap:12px}
+.folders{display:flex;flex-wrap:wrap;gap:10px}
+.folder{background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,.08);min-width:120px;cursor:pointer}
+.folder h3{margin:4px 0 0 0;font-size:16px}
+.list .item{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.item small{color:#666}
+.add{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(5,1fr) auto;gap:8px;padding:10px;background:#eef1f6;border-top:1px solid #e0e4ec}
+.add input{padding:10px;border:1px solid #d6dbe6;border-radius:8px}
+.add button{background:#3D7AFD;color:#fff;border:none;border-radius:8px;padding:10px 14px;font-weight:600}

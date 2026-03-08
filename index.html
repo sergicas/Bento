@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bento — Organitzador</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3D7AFD">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>📂 Bento</h1>
+    <input id="q" class="search" placeholder="Cerca per nom, categoria o etiqueta…" oninput="render()" />
+  </header>
+
+  <main>
+    <section id="folders" class="folders"></section>
+    <section id="list" class="list"></section>
+  </main>
+
+  <footer class="add">
+    <input id="name" placeholder="Nom" />
+    <input id="cat" placeholder="Categoria" />
+    <input id="folder" placeholder="Carpeta" />
+    <input id="sub" placeholder="Subcarpeta" />
+    <input id="tags" placeholder="Etiquetes (coma separades)" />
+    <button id="addBtn">Afegir</button>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js'));
+  </script>
+</body>
+</html>
