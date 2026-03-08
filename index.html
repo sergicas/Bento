@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ca">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,6 +9,7 @@
   <meta name="theme-color" content="#3D7AFD">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <header class="topbar">
     <h1>📂 Bento</h1>
@@ -27,10 +29,11 @@
     <input id="docTags" placeholder="Etiquetes (coma separades)" />
     <button id="addBtn">Afegir</button>
   </footer>
-
+  <div id="toast" class="toast">Document afegit correctament! ✅</div>
   <script src="app.js"></script>
   <script>
-    if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js'));
+    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js'));
   </script>
 </body>
+
 </html>

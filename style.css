@@ -11,3 +11,29 @@ main{padding:12px;display:grid;gap:12px}
 .add{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(5,1fr) auto;gap:8px;padding:10px;background:#eef1f6;border-top:1px solid #e0e4ec}
 .add input{padding:10px;border:1px solid #d6dbe6;border-radius:8px}
 .add button{background:#3D7AFD;color:#fff;border:none;border-radius:8px;padding:10px 14px;font-weight:600}
+
+/* Toast Notification */
+.toast {
+  visibility: hidden;
+  min-width: 250px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 80px;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-weight: 500;
+}
+
+.toast.show {
+  visibility: visible;
+  opacity: 1;
+  bottom: 100px;
+}

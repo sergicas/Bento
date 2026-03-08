@@ -6,6 +6,17 @@ function save() {
   localStorage.setItem(KEY, JSON.stringify(docs));
 }
 
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  if (toast) {
+    if (message) toast.innerText = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+}
+
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, ch => ({
     '&': '&amp;',
@@ -52,6 +63,8 @@ function addDocument() {
 
   currentFolder = folder;
   render();
+  
+  showToast('Document afegit correctament! ✅');
 }
 
 function render() {
