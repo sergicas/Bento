@@ -63,8 +63,17 @@ function addDocument() {
 
   currentFolder = folder;
   render();
-  
+
   showToast('Document afegit correctament! ✅');
+}
+
+function deleteDocument(id) {
+  if (confirm('N\'estàs segur que vols eliminar aquest document? Aquesta acció no es pot desfer.')) {
+    docs = docs.filter(d => d.id !== id);
+    save();
+    render();
+    showToast('Document eliminat correctament 🗑️');
+  }
 }
 
 function render() {
@@ -105,13 +114,16 @@ function render() {
       .sort((a, b) => b.id - a.id)
       .map(d => `
         <div class="item">
-          <div>
-            <strong>${escapeHtml(d.name)}</strong>
-            <small> · ${escapeHtml(d.cat || '—')} · ${escapeHtml(d.folder || '—')}${d.sub ? ' / ' + escapeHtml(d.sub) : ''}</small>
+          <div class="item-content">
+            <div>
+              <strong>${escapeHtml(d.name)}</strong>
+              <small> · ${escapeHtml(d.cat || '—')} · ${escapeHtml(d.folder || '—')}${d.sub ? ' / ' + escapeHtml(d.sub) : ''}</small>
+            </div>
+            <div>
+              <small>Etiquetes: ${escapeHtml((d.tags || []).join(', ') || '—')}</small>
+            </div>
           </div>
-          <div>
-            <small>Etiquetes: ${escapeHtml((d.tags || []).join(', ') || '—')}</small>
-          </div>
+          <button class="delete-btn" onclick="deleteDocument(${d.id})" title="Eliminar document">🗑️</button>
         </div>
       `)
       .join('') || '<small>Encara no hi ha documents.</small>';
