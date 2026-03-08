@@ -43,3 +43,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('addBtn').addEventListener('click', add);
   render();
 });
+// Inici: enganxa el listener i pinta
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('addBtn');
+  if (btn) btn.addEventListener('click', addDocument);
+  render();
+});
