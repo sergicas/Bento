@@ -1,10 +1,10 @@
-const KEY = 'bento_docs_v1';
-let docs = JSON.parse(localStorage.getItem(KEY) || '[]');
-let currentFolder = '';
+// Supabase configuració
+const supabaseUrl = 'https://vlyhfgrxpyyscsklxoru.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZseWhmZ3J4cHl5c2Nza2x4b3J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTU1NDQsImV4cCI6MjA4ODU3MTU0NH0.-kwCSNUO29zjbtz_8cQ6ACFp8GsM_mdcmBtygGd9cgY';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-function save() {
-  localStorage.setItem(KEY, JSON.stringify(docs));
-}
+let docs = [];
+let currentFolder = '';
 
 function showToast(message) {
   const toast = document.getElementById('toast');
@@ -27,33 +27,57 @@ function escapeHtml(str) {
   }[ch]));
 }
 
-function addDocument() {
-  console.log('[Bento] Clic a Afegir');
+async function fetchDocuments() {
+  const { data, error } = await supabase
+    .from('documents')
+    .select('*')
+    .order('id', { ascending: false });
+    
+  if (error) {
+    console.error('Error carregant documents de Supabase:', error);
+    showToast('Error carregant documents ❌');
+    return;
+  }
+  
+  docs = data || [];
+  render();
+}
 
+async function addDocument() {
   const name = document.getElementById('docName').value.trim();
   const cat = document.getElementById('docCategory').value.trim();
   const folder = document.getElementById('docFolder').value.trim() || 'General';
   const sub = document.getElementById('docSubfolder').value.trim();
-  const tags = document.getElementById('docTags').value
-    .split(',')
-    .map(t => t.trim())
-    .filter(Boolean);
-
+  const tagsStr = document.getElementById('docTags').value;
+  
   if (!name) {
-    alert('Posa un nom');
+    alert('Posa un nom al document');
     return;
   }
-
-  docs.push({
-    id: Date.now(),
+  
+  const newDoc = {
     name,
     cat,
     folder,
     sub,
-    tags
-  });
+    tags: tagsStr
+  };
 
-  save();
+  const { data, error } = await supabase
+    .from('documents')
+    .insert([newDoc])
+    .select();
+
+  if (error) {
+    console.error('Error insertant a Supabase:', error);
+    showToast('Error en afegir el document ❌');
+    return;
+  }
+
+  // Afegeix el document retornat per Supabase (amb el seu ID real)
+  if (data && data.length > 0) {
+    docs.unshift(data[0]); // Posa'l al principi
+  }
 
   ['docName', 'docCategory', 'docFolder', 'docSubfolder', 'docTags']
     .forEach(id => {
@@ -63,14 +87,23 @@ function addDocument() {
 
   currentFolder = folder;
   render();
-
   showToast('Document afegit correctament! ✅');
 }
 
-function deleteDocument(id) {
-  if (confirm('N\'estàs segur que vols eliminar aquest document? Aquesta acció no es pot desfer.')) {
+async function deleteDocument(id) {
+  if (confirm('N\'estàs segur que vols eliminar aquest document? Aquesta acció no es pot desfer i s\'eliminarà del núvol.')) {
+    const { error } = await supabase
+      .from('documents')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error eliminant a Supabase:', error);
+      showToast('Error en eliminar el document ❌');
+      return;
+    }
+
     docs = docs.filter(d => d.id !== id);
-    save();
     render();
     showToast('Document eliminat correctament 🗑️');
   }
@@ -100,19 +133,21 @@ function render() {
   let filtered = docs.filter(d => !currentFolder || d.folder === currentFolder);
 
   if (q) {
-    filtered = filtered.filter(d =>
-      d.name.toLowerCase().includes(q) ||
-      (d.cat || '').toLowerCase().includes(q) ||
-      (d.folder || '').toLowerCase().includes(q) ||
-      (d.sub || '').toLowerCase().includes(q) ||
-      (d.tags || []).join(' ').toLowerCase().includes(q)
-    );
+    filtered = filtered.filter(d => {
+      const tagArray = (d.tags || '').split(',').map(t=>t.trim());
+      return d.name.toLowerCase().includes(q) ||
+        (d.cat || '').toLowerCase().includes(q) ||
+        (d.folder || '').toLowerCase().includes(q) ||
+        (d.sub || '').toLowerCase().includes(q) ||
+        tagArray.join(' ').toLowerCase().includes(q)
+    });
   }
 
   listEl.innerHTML =
     filtered
-      .sort((a, b) => b.id - a.id)
-      .map(d => `
+      .map(d => {
+        const tagArray = (d.tags || '').split(',').map(t=>t.trim()).filter(Boolean);
+        return `
         <div class="item">
           <div class="item-content">
             <div>
@@ -120,12 +155,12 @@ function render() {
               <small> · ${escapeHtml(d.cat || '—')} · ${escapeHtml(d.folder || '—')}${d.sub ? ' / ' + escapeHtml(d.sub) : ''}</small>
             </div>
             <div>
-              <small>Etiquetes: ${escapeHtml((d.tags || []).join(', ') || '—')}</small>
+              <small>Etiquetes: ${escapeHtml(tagArray.join(', ') || '—')}</small>
             </div>
           </div>
           <button class="delete-btn" onclick="deleteDocument(${d.id})" title="Eliminar document">🗑️</button>
         </div>
-      `)
+      `})
       .join('') || '<small>Encara no hi ha documents.</small>';
 }
 
@@ -141,5 +176,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const search = document.getElementById('search');
   if (search) search.addEventListener('input', render);
 
-  render();
+  // Carregar els documents del núvol en obrir la pàgina
+  fetchDocuments();
 });
