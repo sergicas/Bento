@@ -1,56 +1,110 @@
 <!DOCTYPE html>
 <html lang="ca">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bento — Organitzador</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#3D7AFD">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bento — Organitzador</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  <header class="topbar">
-    <h1>📂 Bento</h1>
-    <input id="search" class="search" placeholder="Cerca per nom, categoria o etiqueta…" oninput="render()" />
-  </header>
-  <main>
-    <section id="folders" class="folders"></section>
-    <section id="list" class="list"></section>
-  </main>
-  <footer class="add">
-    <div class="input-group">
-      <label for="docName">Nom</label>
-      <input id="docName" />
-    </div>
-    <div class="input-group">
-      <label for="docCategory">Categoria</label>
-      <input id="docCategory" />
-    </div>
-    <div class="input-group">
-      <label for="docFolder">Carpeta</label>
-      <input id="docFolder" />
-    </div>
-    <div class="input-group">
-      <label for="docSubfolder">Subcarpeta</label>
-      <input id="docSubfolder" />
-    </div>
-    <div class="input-group">
-      <label for="docTags">Etiquetes (coma separades)</label>
-      <input id="docTags" />
-    </div>
-    <div class="input-group">
-      <label for="docFile">Fitxer (Opcional)</label>
-      <input type="file" id="docFile" style="font-size: 11px;" />
-    </div>
-    <button id="addBtn">Afegir</button>
-  </footer>
-  <div id="toast" class="toast">Document afegit correctament! ✅</div>
-  
-  <!-- ✅ SOLUCIÓ: Cargar llibreria Supabase abans d'app.js -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js'));
-  </script>
+
+    <!-- Barra superior i Cercador -->
+    <header class="topbar">
+        <div class="logo">
+            <h1>📂 Bento</h1>
+        </div>
+        <div class="search-container">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="search-icon">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="search" class="search-input" placeholder="Cerca per nom, categoria o etiqueta…" />
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <!-- Secció Carpetes -->
+        <aside class="sidebar">
+            <h2 class="section-title">Carpetes</h2>
+            <div id="folders" class="folders">
+                <!-- Renderitzat per JS -->
+            </div>
+        </aside>
+
+        <!-- Secció Llista de Documents -->
+        <section class="content">
+            <h2 class="section-title">Documents</h2>
+            <div id="list" class="list">
+                <!-- Renderitzat per JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Barra inferior per afegir -->
+    <footer class="add-footer">
+        <div class="add-container">
+            <div class="input-group">
+                <label for="docName">Nom del Document</label>
+                <input type="text" id="docName" placeholder="Ex: Pressupost 2026" />
+            </div>
+
+            <div class="input-group">
+                <label for="docCategory">Categoria</label>
+                <input type="text" id="docCategory" placeholder="Ex: Finances" />
+            </div>
+
+            <div class="input-group">
+                <label for="docFolder">Carpeta</label>
+                <input type="text" id="docFolder" placeholder="Ex: Arrel" />
+            </div>
+
+            <div class="input-group">
+                <label for="docSubfolder">Subcarpeta</label>
+                <input type="text" id="docSubfolder" placeholder="Ex: Proveïdors" />
+            </div>
+
+            <div class="input-group">
+                <label for="docTags">Etiquetes (separades per coma)</label>
+                <input type="text" id="docTags" placeholder="Ex: urgent, 2026" />
+            </div>
+
+            <!-- El botó d'upload el mantindrem visualment però deshabilitat fins la Fase 4 o 5 -->
+            <div class="input-group file-group">
+                <label for="docFile" class="file-btn" style="opacity:0.5; cursor:not-allowed;"
+                    title="L'adjunt d'arxius s'activarà a la Fase 4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
+                        </path>
+                    </svg>
+                    <span class="file-name" id="fileNameDisplay">Adjuntar arxiu...</span>
+                </label>
+                <input type="file" id="docFile" class="hidden-file" />
+            </div>
+
+            <button id="addBtn" class="primary-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Afegir
+            </button>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast">Document simulat afegit! ✅</div>
+
+    <script src="app.js"></script>
 </body>
+
 </html>

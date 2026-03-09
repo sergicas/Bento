@@ -1,30 +1,428 @@
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#f6f7fb;color:#222}
-.topbar{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;padding:12px;background:#3D7AFD;color:#fff}
-.topbar h1{margin:0;font-size:20px}
-.search{flex:1;border:none;border-radius:10px;padding:10px 12px;font-size:16px}
-main{padding:12px;display:grid;gap:12px}
-.folders{display:flex;flex-wrap:wrap;gap:10px}
-.folder{background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,.08);min-width:120px;cursor:pointer}
-.folder h3{margin:4px 0 0 0;font-size:16px}
-.list .item{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.item small{color:#666}
-.add{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(5,1fr) auto;gap:8px;padding:10px;background:#eef1f6;border-top:1px solid #e0e4ec}
-.add input{padding:10px;border:1px solid #d6dbe6;border-radius:8px}
-.add button{background:#3D7AFD;color:#fff;border:none;border-radius:8px;padding:10px 14px;font-weight:600}
+/* ==========================================================================
+   VARIABLES I BASE
+   ========================================================================== */
+:root {
+    /* Fons blau i taronja tènue demanat */
+    --bg-color: #f0f4f8;
+    /* Blau molt suau / grisenc */
+    --surface-color: #ffffff;
+    --border-color: #e2e8f0;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
 
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #333;
-  color: #fff;
-  padding: 12px 20px;
-  border-radius: 8px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s;
-  z-index: 1000;
+    /* Blau principal de Bento */
+    --primary: #3d7afd;
+    --primary-light: #eff4ff;
+    /* Fons pels tags i over amb blau */
+    --primary-hover: #2563eb;
+
+    /* Colors secundaris/accents (Taronja suau) */
+    --accent-orange: #f97316;
+    --accent-orange-light: #fff7ed;
+    --accent-orange-hover: #ea580c;
+
+    --danger: #ef4444;
+    --danger-bg: #fee2e2;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --transition: all 0.2s ease;
 }
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+     BARRA SUPERIOR (HEADER)
+     ========================================================================== */
+.topbar {
+    background: var(--surface-color);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 2px rgba(61, 122, 253, 0.05);
+    /* Llum blava molt suau */
+}
+
+.logo h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+}
+
+.search-container {
+    flex: 1;
+    max-width: 600px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--text-muted);
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 12px 10px 40px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: var(--bg-color);
+    font-size: 15px;
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--surface-color);
+    box-shadow: 0 0 0 3px rgba(61, 122, 253, 0.15);
+}
+
+/* ==========================================================================
+     LAYOUT PRINCIPAL
+     ========================================================================== */
+.dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 32px;
+    align-items: start;
+    min-height: calc(100vh - 160px);
+}
+
+.section-title {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+/* CARPETES (SIDEBAR) */
+.sidebar {
+    position: sticky;
+    top: 100px;
+}
+
+.folders {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.folder {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text-main);
+    transition: var(--transition);
+}
+
+.folder:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.folder.active {
+    background: var(--surface-color);
+    font-weight: 600;
+    color: var(--accent-orange);
+    box-shadow: var(--shadow-sm);
+    border-left: 3px solid var(--accent-orange);
+}
+
+.folder-icon {
+    font-size: 18px;
+}
+
+/* LLISTA DE DOCUMENTS */
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.item {
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.item-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.item-meta {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+/* BADGES I TAGS */
+.badge {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.category-badge {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.folder-badge {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.item-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ACCIONS DE L'ITEM */
+.item-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.attachment-btn {
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--primary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.attachment-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.delete-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    display: grid;
+    place-items: center;
+    transition: var(--transition);
+}
+
+.delete-btn:hover {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+/* ==========================================================================
+     FOOTER - FORMULARI D'AFEGIR
+     ========================================================================== */
+.add-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--surface-color);
+    border-top: 1px solid var(--border-color);
+    padding: 16px 24px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+}
+
+.add-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.input-group input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(61, 122, 253, 0.15);
+}
+
+/* BOTÓ DE FITXER PERSONALITZAT */
+.file-group {
+    flex: 0 0 auto;
+}
+
+.hidden-file {
+    display: none;
+}
+
+.file-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-color);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.file-btn:hover {
+    background: var(--accent-orange-light);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+/* BOTÓ AFEGIR PRIMARI */
+.primary-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.primary-btn:hover {
+    background: var(--primary-hover);
+    box-shadow: var(--shadow-md);
+}
+
+/* TOAST NOTIFICATIONS (Fase 3 endavant) */
+.toast {
+    position: fixed;
+    bottom: 85px;
+    right: 24px;
+    background: var(--text-main);
+    color: white;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+}
+
 .toast.show {
-  opacity: 1;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* DESKTOP RESPONSIVE */
+@media (max-width: 1024px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .folders {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .folder {
+        flex: 0 0 auto;
+    }
+
+    .add-container {
+        flex-wrap: wrap;
+    }
 }
