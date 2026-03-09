@@ -46,16 +46,8 @@
   </footer>
   <div id="toast" class="toast">Document afegit correctament! ✅</div>
   
-  <!-- ✅ SOLUCIÓ: Inicialitzar Supabase INLINE AQUÍ, ANTES de app.js -->
+  <!-- ✅ SOLUCIÓ: Cargar llibreria Supabase abans d'app.js -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // ✅ Inicialitzar Supabase UNA SOLA VEZ en el HTML, ANTES de cargar app.js
-    // Això evita que app.js intenti declarar supabase de nou
-    const supabaseUrl = 'https://vlyhfgrxpyyscsklxoru.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZseWhmZ3J4cHl5c2Nza2x4b3J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTU1NDQsImV4cCI6MjA4ODU3MTU0NH0.-kwCSNUO29zjbtz_8cQ6ACFp8GsM_mdcmBtygGd9cgY';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-    console.log('✅ Supabase inicialitzat correctament en el HTML');
-  </script>
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js'));
