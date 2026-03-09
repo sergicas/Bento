@@ -1,7 +1,5 @@
-// Supabase configuració
-const supabaseUrl = 'https://vlyhfgrxpyyscsklxoru.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZseWhmZ3J4cHl5c2Nza2x4b3J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTU1NDQsImV4cCI6MjA4ODU3MTU0NH0.-kwCSNUO29zjbtz_8cQ6ACFp8GsM_mdcmBtygGd9cgY';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+// ✅ SOLUCIÓ: Supabase ja està declarat al HTML
+// app.js simplement usa la variable global `supabase`
 
 let docs = [];
 let currentFolder = '';
@@ -28,22 +26,40 @@ function escapeHtml(str) {
 }
 
 async function fetchDocuments() {
-  const { data, error } = await supabase
-    .from('documents')
-    .select('*')
-    .order('id', { ascending: false });
-
-  if (error) {
-    console.error('Error carregant documents de Supabase:', error);
-    showToast('Error carregant documents ❌');
+  if (!supabase) {
+    console.error('❌ Supabase no està disponible');
+    showToast('Error: Supabase no disponible ❌');
     return;
   }
 
-  docs = data || [];
-  render();
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .order('id', { ascending: false });
+
+    if (error) {
+      console.error('Error carregant documents:', error);
+      showToast('Error carregant documents ❌');
+      return;
+    }
+
+    docs = data || [];
+    console.log('✅ Documents carregats:', docs.length);
+    render();
+  } catch (err) {
+    console.error('Exception en fetchDocuments:', err);
+    showToast('Error carregant documents ❌');
+  }
 }
 
 async function addDocument() {
+  if (!supabase) {
+    console.error('❌ Supabase no està disponible');
+    showToast('Error: Supabase no disponible ❌');
+    return;
+  }
+
   const name = document.getElementById('docName').value.trim();
   const cat = document.getElementById('docCategory').value.trim();
   const folder = document.getElementById('docFolder').value.trim() || 'General';
@@ -64,21 +80,30 @@ async function addDocument() {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('bento-files')
-      .upload(fileName, file);
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('bento-files')
+        .upload(fileName, file);
 
-    if (uploadError) {
-      console.error('Error pujant el fitxer:', uploadError);
-      showToast('Error pujant el fitxer ❌');
+      if (uploadError) {
+        console.error('Error pujant fitxer:', uploadError);
+        showToast('Error pujant fitxer ❌');
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('bento-files')
+        .getPublicUrl(fileName);
+
+      if (publicUrlData && publicUrlData.publicUrl) {
+        file_url = publicUrlData.publicUrl;
+        console.log('✅ Fitxer pujat:', file_url);
+      }
+    } catch (err) {
+      console.error('Error en procés de pujada:', err);
+      showToast('Error en procés de pujada ❌');
       return;
     }
-
-    const { data: publicUrlData } = supabase.storage
-      .from('bento-files')
-      .getPublicUrl(fileName);
-
-    file_url = publicUrlData.publicUrl;
   }
 
   const newDoc = {
@@ -90,49 +115,73 @@ async function addDocument() {
     file_url: file_url
   };
 
-  const { data, error } = await supabase
-    .from('documents')
-    .insert([newDoc])
-    .select();
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .insert([newDoc])
+      .select();
 
-  if (error) {
-    console.error('Error insertant a Supabase:', error);
-    showToast('Error en afegir el document ❌');
-    return;
-  }
+    if (error) {
+      console.error('Error insertant document:', error);
+      showToast('Error en afegir document ❌');
+      return;
+    }
 
-  // Afegeix el document retornat per Supabase (amb el seu ID real)
-  if (data && data.length > 0) {
-    docs.unshift(data[0]); // Posa'l al principi
-  }
+    if (data && data.length > 0) {
+      docs.unshift(data[0]);
+      console.log('✅ Document afegit correctament');
+    }
 
-  ['docName', 'docCategory', 'docFolder', 'docSubfolder', 'docTags', 'docFile']
-    .forEach(id => {
+    // Netejar formulari
+    ['docName', 'docCategory', 'docFolder', 'docSubfolder', 'docTags'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
 
-  currentFolder = folder;
-  render();
-  showToast('Document afegit correctament! ✅');
+    if (fileInput) fileInput.value = '';
+
+    currentFolder = folder;
+    render();
+    showToast('Document afegit correctament! ✅');
+  } catch (err) {
+    console.error('Exception en addDocument:', err);
+    showToast('Error en afegir document ❌');
+  }
 }
 
 async function deleteDocument(id) {
-  if (confirm('N\'estàs segur que vols eliminar aquest document? Aquesta acció no es pot desfer i s\'eliminarà del núvol.')) {
-    const { error } = await supabase
-      .from('documents')
-      .delete()
-      .eq('id', id);
+  if (!id || isNaN(id)) {
+    console.error('ID inválid:', id);
+    showToast('Error: ID inválid ❌');
+    return;
+  }
 
-    if (error) {
-      console.error('Error eliminant a Supabase:', error);
-      showToast('Error en eliminar el document ❌');
-      return;
+  if (!supabase) {
+    showToast('Error: Supabase no disponible ❌');
+    return;
+  }
+
+  if (confirm('N\'estàs segur que vols eliminar aquest document? Aquesta acció no es pot desfer.')) {
+    try {
+      const { error } = await supabase
+        .from('documents')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error eliminant document:', error);
+        showToast('Error en eliminar document ❌');
+        return;
+      }
+
+      docs = docs.filter(d => d.id !== id);
+      console.log('✅ Document eliminat correctament');
+      render();
+      showToast('Document eliminat correctament 🗑️');
+    } catch (err) {
+      console.error('Exception en deleteDocument:', err);
+      showToast('Error en eliminar document ❌');
     }
-
-    docs = docs.filter(d => d.id !== id);
-    render();
-    showToast('Document eliminat correctament 🗑️');
   }
 }
 
@@ -152,9 +201,8 @@ function render() {
   foldersEl.innerHTML =
     `<div class="folder" onclick="setFolder('')"><h3>📁 Totes</h3></div>` +
     folders.map(f => {
-      const safeJs = JSON.stringify(f);
       const safeHtml = escapeHtml(f);
-      return `<div class="folder" onclick='setFolder(${safeJs})'><h3>📁 ${safeHtml}</h3></div>`;
+      return `<div class="folder" onclick="setFolder('${safeHtml}')"><h3>📁 ${safeHtml}</h3></div>`;
     }).join('');
 
   let filtered = docs.filter(d => !currentFolder || d.folder === currentFolder);
@@ -197,13 +245,16 @@ function setFolder(f) {
   render();
 }
 
+// Inicialitzar quan el DOM estigui llest
 window.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 Inicialitzant Bento...');
+  
   const btn = document.getElementById('addBtn');
   if (btn) btn.addEventListener('click', addDocument);
 
   const search = document.getElementById('search');
   if (search) search.addEventListener('input', render);
 
-  // Carregar els documents del núvol en obrir la pàgina
+  // Carregar documents del núvol
   fetchDocuments();
 });
